@@ -3,7 +3,7 @@ import cv2
 
 # Identify pixels above the threshold
 # Threshold of RGB > 160 does a nice job of identifying ground pixels only
-def color_thresh(img, roll, pitch, rgb_thresh=(160, 160, 160)):
+def color_thresh(img, rgb_thresh=(160, 160, 160)):
     # Create an array of zeros same xy size as img, but single channel
     color_select = np.zeros_like(img[:,:,0])
     
@@ -78,7 +78,7 @@ def perspect_transform(img, src, dst):
     
     return warped
 
-def obstacles(img, roll, pitch, rgb_thresh=(70, 70, 70)):
+def obstacles(img, rgb_thresh=(70, 70, 70)):
     obstacles = np.zeros_like(img[:,:,0])
     
     below_thresh = (img[:,:,0] < rgb_thresh[0]) \
@@ -118,8 +118,8 @@ def perception_step(Rover):
     
     # 3) Apply color threshold to identify navigable terrain/obstacles/rock samples
     
-    threshed_terrain = color_thresh(warped, Rover.roll, Rover.pitch)
-    threshed_obstacles = obstacles(warped, Rover.roll, Rover.pitch)
+    threshed_terrain = color_thresh(warped)
+    threshed_obstacles = obstacles(warped)
     threshed_rocks = rocks(warped)
     
     # 4) Update Rover.vision_image (this will be displayed on left side of screen)
@@ -147,10 +147,11 @@ def perception_step(Rover):
         # Example: Rover.worldmap[obstacle_y_world, obstacle_x_world, 0] += 1
         #          Rover.worldmap[rock_y_world, rock_x_world, 1] += 1
         #          Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
-        
-    Rover.worldmap[obstacles_y_world, obstacles_x_world, 0] += 1
-    Rover.worldmap[rock_y_world, rock_x_world, 1] += 1
-    Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
+     
+    if Rover.roll < 1 and Rover.pitch < 1: 
+        Rover.worldmap[obstacles_y_world, obstacles_x_world, 0] += 1
+        Rover.worldmap[rock_y_world, rock_x_world, 1] += 1
+        Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
         
     # 8) Convert rover-centric pixel positions to polar coordinates
     
