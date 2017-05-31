@@ -78,12 +78,12 @@ def perspect_transform(img, src, dst):
     
     return warped
 
-def obstacles(img, rgb_thresh=(70, 70, 70)):
+def obstacles(img, rgb_thresh=((70, 1), (70, 1), (50, 1))):
     obstacles = np.zeros_like(img[:,:,0])
     
-    below_thresh = (img[:,:,0] < rgb_thresh[0]) \
-                & (img[:,:,1] < rgb_thresh[1]) \
-                & (img[:,:,2] < rgb_thresh[2])
+    below_thresh = (img[:,:,0] < rgb_thresh[0][0]) & (img[:,:,0] > rgb_thresh[0][1]) \
+                & (img[:,:,1] < rgb_thresh[1][0]) & (img[:,:,0] > rgb_thresh[1][1]) \
+                & (img[:,:,2] < rgb_thresh[2][0]) & (img[:,:,0] > rgb_thresh[2][1])
     obstacles[below_thresh] = 1
     return obstacles
 
@@ -148,7 +148,7 @@ def perception_step(Rover):
         #          Rover.worldmap[rock_y_world, rock_x_world, 1] += 1
         #          Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
      
-    if Rover.roll < 1 and Rover.pitch < 1: 
+    if Rover.roll < 1 or Rover.pitch < 1: 
         Rover.worldmap[obstacles_y_world, obstacles_x_world, 0] += 1
         Rover.worldmap[rock_y_world, rock_x_world, 1] += 1
         Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
